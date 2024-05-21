@@ -12,6 +12,9 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import static org.task.OutputUtils.printPhrasesTable;
+import static org.task.OutputUtils.printPrimaryTable;
+
 public class OutputRunner {
 
     public static void run(Path path) {
@@ -19,15 +22,18 @@ public class OutputRunner {
         List<String> words = getWords(contentFromPath);
         List<String> sentences = getSentences(contentFromPath);
 
-        System.out.println("Number of words: " + words.size());
-        System.out.println("Number of sentences: " + sentences.size());
+        printPrimaryTable(words, sentences);
 
-        Map<String, Integer> phrases = findPhrases(sentences, 3);
-        Map<String, Integer> topEntriesByValue = getTopEntriesByValue(phrases, 5);
-        for (Map.Entry<String, Integer> entry : topEntriesByValue.entrySet()) {
-            System.out.println(entry.getKey() + " " + entry.getValue());
-        }
+        Map<String, Integer> phrases = findPhrases(sentences, 1);
+        Map<String, Integer> topEntriesByValue = getTopEntriesByValue(phrases, 10);
+        int maxPhraseLength = topEntriesByValue.keySet().stream()
+                .mapToInt(String::length)
+                .max()
+                .orElse(0);
 
+        int phraseColumnWidth = Math.max(maxPhraseLength, 10);
+
+        printPhrasesTable(topEntriesByValue, phraseColumnWidth);
     }
 
     public static String getContentFromPath(Path path) {
