@@ -38,7 +38,8 @@ class OutputUtilsTest {
     }
 
     @Test
-    public void testPrintPhrasesTable() {
+    @DisplayName("checkPrintPhrasesTable")
+    void givenTopEntriesByValueWhenPrintPhrasesTableThenPrint() {
         Map<String, Integer> topEntries = new HashMap<>();
         topEntries.put("This is a phrase", 3);
         topEntries.put("Another phrase here", 2);
