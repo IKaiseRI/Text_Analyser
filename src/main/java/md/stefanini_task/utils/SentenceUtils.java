@@ -30,7 +30,7 @@ public class SentenceUtils {
     }
 
     public static List<String> getSentences(String content) {
-        return Arrays.stream(content.split("\\.!?"))
+        return Arrays.stream(content.split("[.!?]"))
                 .map(String::trim)
                 .filter(sentence -> !sentence.isEmpty())
                 .collect(Collectors.toList());
