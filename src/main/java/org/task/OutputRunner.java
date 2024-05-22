@@ -17,15 +17,15 @@ import static org.task.OutputUtils.printPrimaryTable;
 
 public class OutputRunner {
 
-    public static void run(Path path) {
+    public static void run(Path path, Integer top, Integer phraseSize) {
         String contentFromPath = getContentFromPath(path);
         List<String> words = getWords(contentFromPath);
         List<String> sentences = getSentences(contentFromPath);
 
         printPrimaryTable(words, sentences);
 
-        Map<String, Integer> phrases = findPhrases(sentences, 1);
-        Map<String, Integer> topEntriesByValue = getTopEntriesByValue(phrases, 10);
+        Map<String, Integer> phrases = findPhrases(sentences, phraseSize);
+        Map<String, Integer> topEntriesByValue = getTopEntriesByValue(phrases, top);
         int maxPhraseLength = topEntriesByValue.keySet().stream()
                 .mapToInt(String::length)
                 .max()
