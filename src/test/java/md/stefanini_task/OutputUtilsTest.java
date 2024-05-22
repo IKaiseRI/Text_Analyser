@@ -1,4 +1,4 @@
-package org.task;
+package md.stefanini_task;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -11,8 +11,8 @@ import java.util.List;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.task.OutputUtils.printPhrasesTable;
-import static org.task.OutputUtils.printPrimaryTable;
+import static md.stefanini_task.utils.OutputUtils.printPhrasesTable;
+import static md.stefanini_task.utils.OutputUtils.printPrimaryTable;
 
 class OutputUtilsTest {
 

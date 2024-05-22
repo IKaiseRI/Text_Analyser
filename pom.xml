@@ -40,7 +40,7 @@
                     <archive>
                         <manifest>
                             <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
-                            <mainClass>org.task.Main</mainClass>
+                            <mainClass>md.stefanini_task.Main</mainClass>
                         </manifest>
                     </archive>
                 </configuration>

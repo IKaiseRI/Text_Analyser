@@ -1,4 +1,4 @@
-package org.task.exceptions;
+package md.stefanini_task.exceptions;
 
 public class InvalidInputArgumentException extends Exception {
 
