@@ -1,9 +1,13 @@
 package org.task;
 
+import org.task.exceptions.InvalidInputArgumentException;
+
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.stream.Collectors;
+
+import static org.task.Validation.isValidPath;
 
 public class ArgumentsReader {
 
@@ -15,11 +19,16 @@ public class ArgumentsReader {
                         arg -> arg.substring(arg.indexOf('=') + 1)
                 ));
 
-        String filePath = argsMap.getOrDefault("-file", null);
-        int top = Integer.parseInt(argsMap.getOrDefault("-top", "10")); // Set default top value
-        int phraseSize = Integer.parseInt(argsMap.getOrDefault("-phraseSize", "1")); // Set default phraseSize value
+        Path filePath = Path.of(argsMap.getOrDefault("-file", null));
+        int top = Integer.parseInt(argsMap.getOrDefault("-top", null)); // Set default top value
+        int phraseSize = Integer.parseInt(argsMap.getOrDefault("-phraseSize", null));
+        try {
+            isValidPath(filePath);
+        } catch (InvalidInputArgumentException e) {
+            throw new RuntimeException(e);
+        }
 
-        OutputRunner.run(Path.of(filePath), top, phraseSize);
+        OutputRunner.run(filePath, top, phraseSize);
     }
 
 }
