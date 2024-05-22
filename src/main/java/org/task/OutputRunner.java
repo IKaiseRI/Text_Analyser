@@ -1,5 +1,7 @@
 package org.task;
 
+import org.task.exceptions.InvalidInputArgumentException;
+
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -14,29 +16,55 @@ import java.util.stream.IntStream;
 
 import static org.task.OutputUtils.printPhrasesTable;
 import static org.task.OutputUtils.printPrimaryTable;
+import static org.task.Validation.isValidPath;
+import static org.task.Validation.isValidPhraseSize;
+import static org.task.Validation.isValidTopValue;
 
 public class OutputRunner {
 
-    public static void run(Path path, Integer top, Integer phraseSize) {
-        String contentFromPath = getContentFromPath(path);
-        List<String> words = getWords(contentFromPath);
-        List<String> sentences = getSentences(contentFromPath);
+    public static void run(String[] args) {
+        Map<String, String> stringArguments = getStringArguments(args);
 
-        printPrimaryTable(words, sentences);
+        Path filePath = Path.of(stringArguments.getOrDefault("-file", null));
+        String stringTop = stringArguments.getOrDefault("-top", null); // Set default top value
+        String stringPhraseSize = stringArguments.getOrDefault("-phraseSize", null);
 
-        Map<String, Integer> phrases = findPhrases(sentences, phraseSize);
-        Map<String, Integer> topEntriesByValue = getTopEntriesByValue(phrases, top);
-        int maxPhraseLength = topEntriesByValue.keySet().stream()
-                .mapToInt(String::length)
-                .max()
-                .orElse(0);
+        try {
+            isValidPath(filePath);
 
-        int phraseColumnWidth = Math.max(maxPhraseLength, 10);
+            String contentFromPath = getContentFromPath(filePath);
 
-        printPhrasesTable(topEntriesByValue, phraseColumnWidth);
+            int phraseSize = isValidPhraseSize(stringPhraseSize, getLengthOfSentenceWithMostWords(contentFromPath));
+
+            List<String> words = getWords(contentFromPath);
+            List<String> sentences = getSentences(contentFromPath);
+
+            Map<String, Integer> phrases = findPhrases(sentences, phraseSize);
+
+            int top = isValidTopValue(stringTop, phrases.entrySet().size());
+
+            Map<String, Integer> topEntriesByValue = getTopEntriesByValue(phrases, top);
+            int maxPhraseLength = getMaxPhraseLength(topEntriesByValue);
+            int phraseColumnWidth = Math.max(maxPhraseLength, 10);
+
+            printPrimaryTable(words, sentences);
+            printPhrasesTable(topEntriesByValue, phraseColumnWidth);
+
+        } catch (InvalidInputArgumentException e) {
+            throw new RuntimeException(e);
+        }
     }
 
-    public static String getContentFromPath(Path path) {
+    private static Map<String, String> getStringArguments(String[] args) {
+        return Arrays.stream(args)
+                .filter(arg -> arg.startsWith("-"))
+                .collect(Collectors.toMap(
+                        arg -> arg.substring(0, arg.indexOf('=')),
+                        arg -> arg.substring(arg.indexOf('=') + 1)
+                ));
+    }
+
+    private static String getContentFromPath(Path path) {
         String content;
         try {
             content = Files.readString(path);
@@ -47,18 +75,27 @@ public class OutputRunner {
         return content;
     }
 
-    public static List<String> getWords(String content) {
+    private static List<String> getWords(String content) {
         return Arrays.stream(content.split("\\s+")).toList();
     }
 
-    public static List<String> getSentences(String content) {
+    private static List<String> getSentences(String content) {
         return Arrays.stream(content.split("\\.!?"))
                 .map(String::trim)
                 .filter(sentence -> !sentence.isEmpty())
                 .collect(Collectors.toList());
     }
 
-    public static Map<String, Integer> findPhrases(List<String> sentences, int phraseSize) {
+    private static Integer getLengthOfSentenceWithMostWords(String content) {
+        List<String> sentences = getSentences(content);
+
+        return sentences.stream()
+                .mapToInt(sentence -> getWords(sentence).size())
+                .max()
+                .orElse(0);
+    }
+
+    private static Map<String, Integer> findPhrases(List<String> sentences, int phraseSize) {
         Map<String, Integer> phraseCountMap = new HashMap<>();
 
         for (String sentence : sentences) {
@@ -72,7 +109,7 @@ public class OutputRunner {
         return phraseCountMap;
     }
 
-    public static Map<String, Integer> getTopEntriesByValue(Map<String, Integer> map, int n) {
+    private static Map<String, Integer> getTopEntriesByValue(Map<String, Integer> map, int n) {
         return map.entrySet().stream()
                 .sorted(Map.Entry.comparingByValue(Comparator.reverseOrder()))
                 .limit(n)
@@ -84,5 +121,12 @@ public class OutputRunner {
                                         LinkedHashMap::new
                         )
                 );
+    }
+
+    private static Integer getMaxPhraseLength(Map<String, Integer> map) {
+        return map.keySet().stream()
+                .mapToInt(String::length)
+                .max()
+                .orElse(0);
     }
 }

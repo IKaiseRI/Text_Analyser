@@ -16,21 +16,28 @@ public class Validation {
         }
     }
 
-    public static void isValidTopValue(Integer topValue, Integer phraseCount) throws InvalidInputArgumentException {
-        if (topValue == null) {
-            throw new InvalidInputArgumentException("Top argument (-top) is missing");
+    public static int isValidTopValue(String top, Integer phraseCount) throws InvalidInputArgumentException {
+        try {
+            int topValue = Integer.parseInt(top);
+            if (topValue <= 0 || topValue > phraseCount) {
+                throw new InvalidInputArgumentException("Invalid top value or value exceeds number of phrases");
+            }
+            return topValue;
+        } catch (NumberFormatException e) {
+            throw new InvalidInputArgumentException("Invalid top value or value is missing");
         }
-        if (topValue <= 0 || topValue > phraseCount) {
-            throw new InvalidInputArgumentException("Invalid top value or value exceeds number of phrases");
-        }
+
     }
 
-    public static void isValidPhraseSize(Integer phraseSize, Integer maxPossibleSize) throws InvalidInputArgumentException {
-        if (phraseSize == null) {
-            throw new InvalidInputArgumentException("PhraseSize argument (-phraseSize) is missing");
-        }
-        if (phraseSize <= 0 || phraseSize > maxPossibleSize) {
-            throw new InvalidInputArgumentException("Invalid phraseSize or phraseSize exceeds length of each sentence");
+    public static int isValidPhraseSize(String phrase, int maxPossibleSize) throws InvalidInputArgumentException {
+        try {
+            int phraseSize = Integer.parseInt(phrase);
+            if (phraseSize <= 0 || phraseSize > maxPossibleSize) {
+                throw new IllegalArgumentException("Invalid phraseSize or phraseSize exceeds maximum allowed length");
+            }
+            return phraseSize;
+        } catch (NumberFormatException e) {
+            throw new IllegalArgumentException("PhraseSize argument is invalid or missing", e);
         }
     }
 }
